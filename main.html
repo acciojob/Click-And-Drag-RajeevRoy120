@@ -36,60 +36,61 @@
 
 <script>
 //Your code goes here 
-	const items = document.querySelectorAll('.item');
-const container = document.querySelector('.items');
+	<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const items = document.querySelectorAll('.item');
+    const container = document.querySelector('.items');
 
-let selectedItem = null;
-let offsetX = 0;
-let offsetY = 0;
+    let selectedItem = null;
+    let offsetX = 0;
+    let offsetY = 0;
 
-items.forEach((item) => {
-  // Mouse down event - Select item
-  item.addEventListener('mousedown', (e) => {
-    selectedItem = item;
+    items.forEach(item => {
+      // ✅ Mouse down event to select the item
+      item.addEventListener('mousedown', (e) => {
+        selectedItem = item;
+        offsetX = e.clientX - item.getBoundingClientRect().left;
+        offsetY = e.clientY - item.getBoundingClientRect().top;
+        
+        // Bring the item to the front
+        selectedItem.style.zIndex = 1000;
+      });
+    });
 
-    // Get the mouse position relative to the item
-    offsetX = e.clientX - selectedItem.getBoundingClientRect().left;
-    offsetY = e.clientY - selectedItem.getBoundingClientRect().top;
+    // ✅ Mouse move event to update position
+    document.addEventListener('mousemove', (e) => {
+      if (!selectedItem) return;
 
-    // Bring the item to the front
-    selectedItem.style.zIndex = 1000;
+      // Calculate new position
+      let newX = e.clientX - offsetX;
+      let newY = e.clientY - offsetY;
 
-    // Add mousemove and mouseup event listeners
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+      // ✅ Get container and item size for boundary check
+      const containerRect = container.getBoundingClientRect();
+      const itemRect = selectedItem.getBoundingClientRect();
+
+      // ✅ Boundary conditions to keep within container
+      if (newX < containerRect.left) newX = containerRect.left;
+      if (newY < containerRect.top) newY = containerRect.top;
+      if (newX + itemRect.width > containerRect.right) newX = containerRect.right - itemRect.width;
+      if (newY + itemRect.height > containerRect.bottom) newY = containerRect.bottom - itemRect.height;
+
+      // ✅ Set new position within container
+      selectedItem.style.left = `${newX - containerRect.left}px`;
+      selectedItem.style.top = `${newY - containerRect.top}px`;
+    });
+
+    // ✅ Mouse up event to drop the item
+    document.addEventListener('mouseup', () => {
+      if (selectedItem) {
+        selectedItem.style.zIndex = 0;
+        selectedItem = null;
+      }
+    });
   });
-});
+</script>
 
-function onMouseMove(e) {
-  if (!selectedItem) return;
-
-  // Calculate new position
-  let x = e.clientX - offsetX - container.getBoundingClientRect().left;
-  let y = e.clientY - offsetY - container.getBoundingClientRect().top;
-
-  // Constrain movement within container boundaries
-  x = Math.max(0, Math.min(container.clientWidth - selectedItem.clientWidth, x));
-  y = Math.max(0, Math.min(container.clientHeight - selectedItem.clientHeight, y));
-
-  // Update position
-  selectedItem.style.left = `${x}px`;
-  selectedItem.style.top = `${y}px`;
-}
-
-function onMouseUp() {
-  if (!selectedItem) return;
-
-  // Reset z-index
-  selectedItem.style.zIndex = '';
-
-  // Remove event listeners
-  document.removeEventListener('mousemove', onMouseMove);
-  document.removeEventListener('mouseup', onMouseUp);
-
-  selectedItem = null;
-}
-
+	
 </script>
 
   </body>
