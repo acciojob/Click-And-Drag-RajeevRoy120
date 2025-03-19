@@ -36,6 +36,60 @@
 
 <script>
 //Your code goes here 
+	const items = document.querySelectorAll('.item');
+const container = document.querySelector('.items');
+
+let selectedItem = null;
+let offsetX = 0;
+let offsetY = 0;
+
+items.forEach((item) => {
+  // Mouse down event - Select item
+  item.addEventListener('mousedown', (e) => {
+    selectedItem = item;
+
+    // Get the mouse position relative to the item
+    offsetX = e.clientX - selectedItem.getBoundingClientRect().left;
+    offsetY = e.clientY - selectedItem.getBoundingClientRect().top;
+
+    // Bring the item to the front
+    selectedItem.style.zIndex = 1000;
+
+    // Add mousemove and mouseup event listeners
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+});
+
+function onMouseMove(e) {
+  if (!selectedItem) return;
+
+  // Calculate new position
+  let x = e.clientX - offsetX - container.getBoundingClientRect().left;
+  let y = e.clientY - offsetY - container.getBoundingClientRect().top;
+
+  // Constrain movement within container boundaries
+  x = Math.max(0, Math.min(container.clientWidth - selectedItem.clientWidth, x));
+  y = Math.max(0, Math.min(container.clientHeight - selectedItem.clientHeight, y));
+
+  // Update position
+  selectedItem.style.left = `${x}px`;
+  selectedItem.style.top = `${y}px`;
+}
+
+function onMouseUp() {
+  if (!selectedItem) return;
+
+  // Reset z-index
+  selectedItem.style.zIndex = '';
+
+  // Remove event listeners
+  document.removeEventListener('mousemove', onMouseMove);
+  document.removeEventListener('mouseup', onMouseUp);
+
+  selectedItem = null;
+}
+
 </script>
 
   </body>
