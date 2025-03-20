@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Click and Drag</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
+  <!-- Items Container -->
   <div class="items">
     <div class="item item1">01</div>
     <div class="item item2">02</div>
@@ -34,64 +36,95 @@
     <div class="item item25">25</div>
   </div>
 
-<script>
-//Your code goes here 
-	<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const items = document.querySelectorAll('.item');
-    const container = document.querySelector('.items');
+  <!-- Box Container -->
+  <div class="container">
+    <div class="box">1</div>
+    <div class="box">2</div>
+    <div class="box">3</div>
+  </div>
 
-    let selectedItem = null;
-    let offsetX = 0;
-    let offsetY = 0;
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // ✅ ITEMS DRAGGING LOGIC
+      const items = document.querySelectorAll('.item');
+      const container = document.querySelector('.items');
+      let selectedItem = null;
+      let offsetX = 0;
+      let offsetY = 0;
 
-    items.forEach(item => {
-      // ✅ Mouse down event to select the item
-      item.addEventListener('mousedown', (e) => {
-        selectedItem = item;
-        offsetX = e.clientX - item.getBoundingClientRect().left;
-        offsetY = e.clientY - item.getBoundingClientRect().top;
-        
-        // Bring the item to the front
-        selectedItem.style.zIndex = 1000;
+      items.forEach(item => {
+        item.addEventListener('mousedown', (e) => {
+          selectedItem = item;
+          offsetX = e.clientX - item.getBoundingClientRect().left;
+          offsetY = e.clientY - item.getBoundingClientRect().top;
+          selectedItem.style.zIndex = 1000;
+        });
       });
-    });
 
-    // ✅ Mouse move event to update position
-    document.addEventListener('mousemove', (e) => {
-      if (!selectedItem) return;
+      document.addEventListener('mousemove', (e) => {
+        if (!selectedItem) return;
 
-      // Calculate new position
-      let newX = e.clientX - offsetX;
-      let newY = e.clientY - offsetY;
+        let newX = e.clientX - offsetX;
+        let newY = e.clientY - offsetY;
 
-      // ✅ Get container and item size for boundary check
-      const containerRect = container.getBoundingClientRect();
-      const itemRect = selectedItem.getBoundingClientRect();
+        // ✅ Boundary Check for `.items`
+        const containerRect = container.getBoundingClientRect();
+        const itemRect = selectedItem.getBoundingClientRect();
 
-      // ✅ Boundary conditions to keep within container
-      if (newX < containerRect.left) newX = containerRect.left;
-      if (newY < containerRect.top) newY = containerRect.top;
-      if (newX + itemRect.width > containerRect.right) newX = containerRect.right - itemRect.width;
-      if (newY + itemRect.height > containerRect.bottom) newY = containerRect.bottom - itemRect.height;
+        if (newX < containerRect.left) newX = containerRect.left;
+        if (newY < containerRect.top) newY = containerRect.top;
+        if (newX + itemRect.width > containerRect.right) newX = containerRect.right - itemRect.width;
+        if (newY + itemRect.height > containerRect.bottom) newY = containerRect.bottom - itemRect.height;
 
-      // ✅ Set new position within container
-      selectedItem.style.left = `${newX - containerRect.left}px`;
-      selectedItem.style.top = `${newY - containerRect.top}px`;
-    });
+        selectedItem.style.left = `${newX - containerRect.left}px`;
+        selectedItem.style.top = `${newY - containerRect.top}px`;
+      });
 
-    // ✅ Mouse up event to drop the item
-    document.addEventListener('mouseup', () => {
-      if (selectedItem) {
-        selectedItem.style.zIndex = 0;
-        selectedItem = null;
+      document.addEventListener('mouseup', () => {
+        if (selectedItem) {
+          selectedItem.style.zIndex = 0;
+          selectedItem = null;
+        }
+      });
+
+      // ✅ BOXES DRAGGING LOGIC
+      let selectedBox = null;
+
+      function dragStart(e) {
+        selectedBox = this;
       }
+
+      function drag(e) {
+        if (!selectedBox) return;
+
+        // ✅ Keep box within container bounds
+        const containerRect = document.querySelector('.container').getBoundingClientRect();
+        const boxRect = selectedBox.getBoundingClientRect();
+
+        let newX = e.pageX - containerRect.left;
+        let newY = e.pageY - containerRect.top;
+
+        if (newX < 0) newX = 0;
+        if (newY < 0) newY = 0;
+        if (newX + boxRect.width > containerRect.width) newX = containerRect.width - boxRect.width;
+        if (newY + boxRect.height > containerRect.height) newY = containerRect.height - boxRect.height;
+
+        selectedBox.style.left = `${newX}px`;
+        selectedBox.style.top = `${newY}px`;
+      }
+
+      function dragEnd() {
+        selectedBox = null;
+      }
+
+      const boxes = document.querySelectorAll('.box');
+      boxes.forEach(box => {
+        box.addEventListener('mousedown', dragStart);
+        box.addEventListener('mouseup', dragEnd);
+      });
+
+      document.addEventListener('mousemove', drag);
     });
-  });
-</script>
-
-	
-</script>
-
-  </body>
+  </script>
+</body>
 </html>
