@@ -1,26 +1,56 @@
 // Your code here.
-var draggable = document.getElementById('draggable');
+document.addEventListener("DOMContentLoaded", () => {
+    const container = document.querySelector(".container");
+    const cubes = document.querySelectorAll(".cube");
 
-draggable.addEventListener('mousedown', function(e) {
-    isDown = true;
-    offset = [
-        draggable.offsetLeft - e.clientX,
-        draggable.offsetTop - e.clientY
-    ];
-}, true);
+    let selectedCube = null;
+    let offsetX = 0, offsetY = 0;
 
-document.addEventListener('mouseup', function() {
-    isDown = false;
-}, true);
+    // Set initial positions for cubes
+    cubes.forEach((cube, index) => {
+        cube.style.left = `${(index % 2) * 120 + 20}px`;
+        cube.style.top = `${Math.floor(index / 2) * 120 + 20}px`;
 
-document.addEventListener('mousemove', function(event) {
-    event.preventDefault();
-    if (isDown) {
-        mousePosition = {
-            x : event.clientX,
-            y : event.clientY
-        };
-        draggable.style.left = (mousePosition.x + offset[0]) + 'px';
-        draggable.style.top  = (mousePosition.y + offset[1]) + 'px';
+        // Add event listeners for dragging
+        cube.addEventListener("mousedown", (event) => {
+            selectedCube = event.target;
+            offsetX = event.clientX - selectedCube.offsetLeft;
+            offsetY = event.clientY - selectedCube.offsetTop;
+            selectedCube.style.zIndex = 1000;
+            document.addEventListener("mousemove", moveCube);
+            document.addEventListener("mouseup", dropCube);
+        });
+    });
+
+    // Function to move the cube with mouse
+    function moveCube(event) {
+        if (!selectedCube) return;
+
+        let newX = event.clientX - offsetX;
+        let newY = event.clientY - offsetY;
+
+        // Keep within container bounds
+        const containerRect = container.getBoundingClientRect();
+        const cubeRect = selectedCube.getBoundingClientRect();
+
+        if (newX < 0) newX = 0;
+        if (newY < 0) newY = 0;
+        if (newX + cubeRect.width > containerRect.width) 
+            newX = containerRect.width - cubeRect.width;
+        if (newY + cubeRect.height > containerRect.height) 
+            newY = containerRect.height - cubeRect.height;
+
+        selectedCube.style.left = `${newX}px`;
+        selectedCube.style.top = `${newY}px`;
     }
-}, true);
+
+    // Function to drop the cube
+    function dropCube() {
+        if (selectedCube) {
+            selectedCube.style.zIndex = 1;
+            document.removeEventListener("mousemove", moveCube);
+            document.removeEventListener("mouseup", dropCube);
+            selectedCube = null;
+        }
+    }
+});
